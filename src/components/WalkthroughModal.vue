@@ -36,9 +36,12 @@
             <input type="text" v-model="gameFilesDir" class="form-control" style="flex: 1; padding: 0.75rem; font-size: 1rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--text-main);" placeholder="e.g. C:\Program Files\EA Games\The Sims 3" />
             <button class="btn btn-secondary" style="padding: 0 1rem;" @click="browseGameFilesDir">Browse</button>
           </div>
-          <p v-if="validationError" style="color: var(--danger); font-size: 0.9rem; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
-            <span class="material-symbols-outlined" style="font-size: 16px;">error</span> {{ validationError }}
-          </p>
+          <div v-if="validationError" style="margin-top: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+            <p style="color: var(--danger); font-size: 0.9rem; margin: 0; display: flex; align-items: center; gap: 0.25rem;">
+              <span class="material-symbols-outlined" style="font-size: 16px;">error</span> {{ validationError }}
+            </p>
+            <button @click="forceNext" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.85rem;">Continue anyway</button>
+          </div>
         </div>
       </div>
       <div v-if="step === 6">
@@ -159,6 +162,21 @@ const next = async () => {
     emit('close')
   }
 }
+
+const forceNext = async () => {
+  validating.value = true
+  try {
+    const settings = await fetchSettings()
+    settings.gameFilesDir = gameFilesDir.value
+    await saveSettings(settings)
+  } catch (err) {
+    console.error(err)
+  }
+  validating.value = false
+  validationError.value = ""
+  step.value++
+}
+
 const close = () => {
   emit('close')
 }

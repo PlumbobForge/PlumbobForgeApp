@@ -275,14 +275,18 @@ const onGameFilesDirBlur = async () => {
     try {
       const isValid = await validateGameFiles(settings.value.gameFilesDir)
       if (!isValid) {
-        showToast('Could not detect game files in this directory.', 'error');
+        const proceed = await showConfirm('Warning', 'Could not detect game files in this directory. Do you want to continue anyway?');
+        if (!proceed) {
+          settings.value.gameFilesDir = initialGameFilesDir;
+          return;
+        }
+      }
+    } catch (e) {
+      const proceed = await showConfirm('Warning', 'An error occurred while validating this directory. Do you want to continue anyway?');
+      if (!proceed) {
         settings.value.gameFilesDir = initialGameFilesDir;
         return;
       }
-    } catch (e) {
-      showToast('Validation failed.', 'error');
-      settings.value.gameFilesDir = initialGameFilesDir;
-      return;
     }
   }
 
