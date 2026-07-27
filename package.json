@@ -1,7 +1,7 @@
 {
   "name": "plumbobforge-app",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "CC Manager for The Sims 3",
   "author": "bringscookies",
   "main": "dist-electron/main.js",
