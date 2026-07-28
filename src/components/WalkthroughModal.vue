@@ -190,8 +190,8 @@ const doMigrate = async () => {
     } else {
       showToast('No files were found to migrate.', 'info')
     }
-  } catch (err) {
-    showToast('Migration failed. Check the logs for details.', 'error')
+  } catch (err: any) {
+    showToast(err.message || 'Migration failed. Check the logs for details.', 'error')
   } finally {
     migrating.value = false
   }

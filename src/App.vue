@@ -131,20 +131,11 @@ onMounted(async () => {
         }
       }
 
-      if (!currentGameFilesDir) {
-        showWalkthrough.value = true
-      } else {
-        const isValid = await validateGameFiles(currentGameFilesDir)
-        if (!isValid) {
-          showWalkthrough.value = true
-        } else {
-          appReady.value = true
-          initializeDirtyState()
-        }
-      }
+      appReady.value = true
+      initializeDirtyState()
     }
   } catch (err) {
-    console.error('Failed to validate game files dir on launch', err)
+    console.error('Failed to initialize app', err)
     showWalkthrough.value = true
   }
 })

@@ -260,9 +260,9 @@ const onBaseDirBlur = async () => {
     saved.value = true;
     initialBaseDir = settings.value.documentBaseDir; // Update the reference point
     setTimeout(() => { saved.value = false }, 3000);
-  } catch (e) {
+  } catch (e: any) {
     saving.value = false;
-    showToast('Failed to save settings.', 'error');
+    showToast(e.message || 'Failed to save settings.', 'error');
     // Revert visually on error
     settings.value.documentBaseDir = initialBaseDir;
   }
@@ -311,9 +311,9 @@ const onGameFilesDirBlur = async () => {
     saved.value = true;
     initialGameFilesDir = settings.value.gameFilesDir;
     setTimeout(() => { saved.value = false }, 3000);
-  } catch (e) {
+  } catch (e: any) {
     saving.value = false;
-    showToast('Failed to save settings.', 'error');
+    showToast(e.message || 'Failed to save settings.', 'error');
     settings.value.gameFilesDir = initialGameFilesDir;
   }
 }
@@ -339,9 +339,9 @@ const onSettingsChange = async () => {
     saving.value = false;
     saved.value = true;
     setTimeout(() => { saved.value = false }, 3000);
-  } catch (e) {
+  } catch (e: any) {
     saving.value = false;
-    showToast('Failed to save settings.', 'error');
+    showToast(e.message || 'Failed to save settings.', 'error');
   }
 }
 
