@@ -651,6 +651,8 @@ const onDropAll = async (e: DragEvent) => {
       const defaultSet = allSets.value.find(s => s.name === 'Default')
       await moveItems(itemIds, defaultSet ? defaultSet.id : null)
       showToast(`Moved ${itemIds.length} item(s) to ${defaultSet ? 'Default' : 'All Items'}.`, 'success')
+      store.selectedItemIds.clear()
+      store.selectionMode = false
       await loadData()
     } catch (e) {
       showToast('Failed to move items.', 'error')
@@ -675,6 +677,8 @@ const onDropSet = async (data: any, targetSetId: number) => {
     try {
       await moveItems(itemIds, targetSetId)
       showToast(`Moved ${itemIds.length} item(s).`, 'success')
+      store.selectedItemIds.clear()
+      store.selectionMode = false
       await loadData()
     } catch (e) {
       showToast('Failed to move items.', 'error')
