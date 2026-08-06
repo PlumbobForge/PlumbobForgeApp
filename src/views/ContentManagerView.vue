@@ -111,11 +111,25 @@
             </div>
 
             <div id="cm-action-bar" v-if="store.selectionMode && store.selectedItemIds.size > 0" class="cm-action-bar">
-              <span class="cm-action-bar-text">{{ store.selectedItemIds.size }} selected</span>
-              <button id="btn-enable-selected" class="btn btn-action" @click="enableSelected(true)">Enable</button>
-              <button id="btn-disable-selected" class="btn btn-action" @click="enableSelected(false)">Disable</button>
-              <button id="btn-move-selected" class="btn btn-action" @click="moveSelected">Move</button>
-              <button id="btn-delete-selected" class="btn btn-action btn-danger-outline" @click="deleteSelected">Delete</button>
+              <span class="cm-action-bar-text">{{ t('cm.selected', { count: store.selectedItemIds.size }) }}</span>
+              <button id="btn-enable-selected" class="btn btn-action custom-tooltip-container" :data-tooltip="t('context.enable')" @click="enableSelected(true)">
+                <span class="material-symbols-outlined" style="font-size:18px;">check_circle</span>
+              </button>
+              <button id="btn-disable-selected" class="btn btn-action custom-tooltip-container" :data-tooltip="t('context.disable')" @click="enableSelected(false)">
+                <span class="material-symbols-outlined" style="font-size:18px;">block</span>
+              </button>
+              <button id="btn-retag-selected" class="btn btn-action custom-tooltip-container" :data-tooltip="t('context.retag')" @click="onRetagItem()">
+                <span class="material-symbols-outlined" style="font-size:18px;">sell</span>
+              </button>
+              <button id="btn-tags-selected" class="btn btn-action custom-tooltip-container" :data-tooltip="t('context.user_tags')" @click="onEditTags()">
+                <span class="material-symbols-outlined" style="font-size:18px;">label</span>
+              </button>
+              <button id="btn-move-selected" class="btn btn-action custom-tooltip-container" :data-tooltip="t('modal.move')" @click="moveSelected">
+                <span class="material-symbols-outlined" style="font-size:18px;">drive_file_move</span>
+              </button>
+              <button id="btn-delete-selected" class="btn btn-action btn-danger-outline custom-tooltip-container" :data-tooltip="t('modal.delete')" @click="deleteSelected">
+                <span class="material-symbols-outlined" style="font-size:18px;">delete</span>
+              </button>
             </div>
             <button v-if="store.selectionMode" id="btn-select-all" class="btn btn-action mr-2" @click="toggleSelectAll">
               {{ store.selectedItemIds.size === filteredItems.length && filteredItems.length > 0 ? 'Deselect All' : 'Select All' }}
