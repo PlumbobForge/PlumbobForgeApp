@@ -467,10 +467,99 @@ const toggleSetSortDropdown = () => {
   setSortDropdownOpen.value = !setSortDropdownOpen.value
 }
 
-const allSets = ref<SetEntity[]>([])
-const allItems = ref<ItemEntity[]>([])
-const loadingSets = ref(true)
-const loadingItems = ref(true)
+const sortSetsList = (setsList: SetEntity[]) => {
+  const cloned = [...setsList]
+  if (setSortBy.value === 'name_asc') {
+    return cloned.sort((a, b) => a.name.localeCompare(b.name))
+  } else if (setSortBy.value === 'name_desc') {
+    return cloned.sort((a, b) => b.name.localeCompare(a.name))
+  }
+  return cloned.sort((a, b) => a.id - b.id)
+}
+
+// ===== Computeds depending on allSets =====
+const rootSets = computed(() => allSets.value.filter(s => !s.parentSetsEntityId))
+const sortedAllSets = computed(() => sortSetsList(allSets.value))
+const sortedRootSets = computed(() => sortSetsList(rootSets.value))
+
+// ===== User Location Persistence =====
+watch(() => store.selectedSetId, (newId) => {
+  if (newId === null) {
+    localStorage.setItem('plumbobforge_last_selected_set_id', 'null')
+  } else {
+    localStorage.setItem('plumbobforge_last_selected_set_id', newId.toString())
+  }
+})
+
+const restoreLastSelectedSet = () => {
+  const saved = localStorage.getItem('plumbobforge_last_selected_set_id')
+  if (saved && saved !== 'null') {
+    const id = parseInt(saved, 10)
+    if (!isNaN(id) && allSets.value.some(s => s.id === id)) {
+      store.selectedSetId = id
+      let cur = allSets.value.find(s => s.id === id)
+      while (cur && cur.parentSetsEntityId) {
+        store.expandedSets.add(cur.parentSetsEntityId)
+        cur = allSets.value.find(s => s.id === cur!.parentSetsEntityId)
+      }
+    }
+  }
+}
+
+// ===== Scroll Wheel During Set Drag =====
+const onTreeWheel = (e: WheelEvent) => {
+  const target = e.currentTarget as HTMLElement
+  if (target) {
+    target.scrollTop += e.deltaY
+  }
+}
+
+// ===== Search Autocomplete & History =====
+const isSearchFocused = ref(false)
+const searchHistory = ref<string[]>(JSON.parse(localStorage.getItem('plumbobforge_search_history') || '[]'))
+
+const allUserTags = computed(() => {
+  const set = new Set<string>()
+  allItems.value.forEach(item => {
+    if (item.userTags) {
+      item.userTags.split(',').forEach(t => {
+        const trimmed = t.trim()
+        if (trimmed) set.add(trimmed)
+      })
+    }
+  })
+  return Array.from(set).sort()
+})
+
+const filteredTagSuggestions = computed(() => {
+  if (!searchQuery.value) return allUserTags.value.slice(0, 8)
+  const q = searchQuery.value.toLowerCase()
+  return allUserTags.value.filter(t => t.toLowerCase().includes(q)).slice(0, 8)
+})
+
+const selectSearchSuggestion = (val: string) => {
+  searchQuery.value = val
+  addSearchHistory(val)
+  isSearchFocused.value = false
+}
+
+const addSearchHistory = (query: string) => {
+  const trimmed = query.trim()
+  if (!trimmed) return
+  searchHistory.value = [trimmed, ...searchHistory.value.filter(h => h !== trimmed)].slice(0, 10)
+  localStorage.setItem('plumbobforge_search_history', JSON.stringify(searchHistory.value))
+}
+
+const removeSearchHistory = (query: string) => {
+  searchHistory.value = searchHistory.value.filter(h => h !== query)
+  localStorage.setItem('plumbobforge_search_history', JSON.stringify(searchHistory.value))
+}
+
+const onSearchBlur = () => {
+  setTimeout(() => {
+    isSearchFocused.value = false
+  }, 150)
+}
 
 const isDragOverAll = ref(false)
 const showDragWarningTooltip = ref(false)
