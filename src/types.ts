@@ -15,12 +15,18 @@ export interface ItemEntity {
   enabled: boolean;
   packageType: string;
   casCategories?: string;
+  casAge?: string;
+  casGender?: string;
+  casOutfitCategory?: string;
+  isUserTagged?: boolean;
+  userTags?: string;
   installDate?: string;
 }
 
 export interface Configuration {
   id: number;
   name: string;
+  description?: string | null;
   default: boolean;
   active: boolean;
   setIds: number[];
