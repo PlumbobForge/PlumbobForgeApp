@@ -144,6 +144,10 @@
           <span v-if="store.updateStatus === 'error'" style="color: var(--danger); font-size: 0.9rem; display: flex; align-items: center; gap: 0.25rem;">
             <span class="material-symbols-outlined icon-16-mr">error</span> Failed to check for updates.
           </span>
+              <button class="btn btn-info-outline" id="btn-import-downloads" style="width: 100%; justify-content: center;" @click="runImportDownloads">
+                <span class="material-symbols-outlined icon-16-mr">download</span>
+                {{ t('settings.import_downloads_btn') }}
+              </button>
         </div>
       </div>
 

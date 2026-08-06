@@ -18,13 +18,9 @@
       </router-link>
     </nav>
     <div class="d-flex flex-center gap-4 ml-auto" style="-webkit-app-region: no-drag;">
-      <button @click="$emit('import')" class="btn btn-info-outline">
-        <span class="material-symbols-outlined" style="margin-right: 0.5rem; font-size: 20px;">download</span>
-        Import from Downloads
-      </button>
       <button v-if="store.isDirty" id="dirty-warning" @click="$emit('rebuild')" class="btn dirty-warning">
         <span class="material-symbols-outlined" style="margin-right: 0.5rem; font-size: 20px;">warning</span>
-        Rebuild cache to apply changes
+        {{ t('nav.rebuild_cache') }}
       </button>
     </div>
 
@@ -45,13 +41,17 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/app';
 import { useRouter } from 'vue-router';
+import { useI18n } from '@/composables/useI18n';
+
+import { useModal } from '@/composables/useModal';
 
 const store = useAppStore();
 const router = useRouter();
+const { t } = useI18n();
+const { showConfirm } = useModal();
 
 defineEmits<{
   (e: 'rebuild'): void
-  (e: 'import'): void
 }>();
 
 const minimizeWindow = () => {
