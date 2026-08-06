@@ -208,19 +208,94 @@
               CAS Items
             </button>
 
-            <div v-if="filterTypeCAS" class="cas-categories-container">
-              <button
-                v-for="cat in casCategoriesList"
-                :key="cat"
-                class="cas-category-pill"
-                :class="{ active: activeCasCategories.has(cat) }"
-                @click="toggleCasCategory(cat)"
-              >
-                <span v-if="casCategoryIcons[cat]" class="material-symbols-outlined mr-1" style="font-size: 16px;">
-                  {{ casCategoryIcons[cat] }}
-                </span>
-                {{ cat }}
-              </button>
+            <!-- CAS Sub-groups -->
+            <div v-if="filterTypeCAS && !isCasSectionCollapsed" class="cas-categories-container" style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.25rem;">
+              <!-- Category -->
+              <div>
+                <div class="filter-sublabel-row" @click="isCasCategoryCollapsed = !isCasCategoryCollapsed">
+                  <span class="filter-sublabel" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">{{ t('cm.category') }}</span>
+                  <span class="material-symbols-outlined expand-icon-sm" style="font-size: 16px; color: var(--text-muted);">
+                    {{ isCasCategoryCollapsed ? 'expand_more' : 'expand_less' }}
+                  </span>
+                </div>
+                <div v-show="!isCasCategoryCollapsed" style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
+                  <button
+                    v-for="cat in casCategoriesList"
+                    :key="cat"
+                    class="cas-category-pill"
+                    :class="{ active: activeCasCategories.has(cat) }"
+                    @click="toggleCasCategory(cat)"
+                  >
+                    <span v-if="casCategoryIcons[cat]" class="material-symbols-outlined mr-1" style="font-size: 14px;">
+                      {{ casCategoryIcons[cat] }}
+                    </span>
+                    {{ t('cas_categories.' + cat) }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Age -->
+              <div>
+                <div class="filter-sublabel-row" @click="isCasAgeCollapsed = !isCasAgeCollapsed">
+                  <span class="filter-sublabel" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">{{ t('cm.age') }}</span>
+                  <span class="material-symbols-outlined expand-icon-sm" style="font-size: 16px; color: var(--text-muted);">
+                    {{ isCasAgeCollapsed ? 'expand_more' : 'expand_less' }}
+                  </span>
+                </div>
+                <div v-show="!isCasAgeCollapsed" style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
+                  <button
+                    v-for="age in casAgesList"
+                    :key="age"
+                    class="cas-category-pill"
+                    :class="{ active: activeCasAges.has(age) }"
+                    @click="toggleCasAge(age)"
+                  >
+                    {{ t('cas_ages.' + age) }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Gender -->
+              <div>
+                <div class="filter-sublabel-row" @click="isCasGenderCollapsed = !isCasGenderCollapsed">
+                  <span class="filter-sublabel" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">{{ t('cm.gender') }}</span>
+                  <span class="material-symbols-outlined expand-icon-sm" style="font-size: 16px; color: var(--text-muted);">
+                    {{ isCasGenderCollapsed ? 'expand_more' : 'expand_less' }}
+                  </span>
+                </div>
+                <div v-show="!isCasGenderCollapsed" style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
+                  <button
+                    v-for="gen in casGendersList"
+                    :key="gen"
+                    class="cas-category-pill"
+                    :class="{ active: activeCasGenders.has(gen) }"
+                    @click="toggleCasGender(gen)"
+                  >
+                    {{ t('cas_genders.' + gen) }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Outfit Category -->
+              <div>
+                <div class="filter-sublabel-row" @click="isCasOutfitCollapsed = !isCasOutfitCollapsed">
+                  <span class="filter-sublabel" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">{{ t('cm.outfit_category') }}</span>
+                  <span class="material-symbols-outlined expand-icon-sm" style="font-size: 16px; color: var(--text-muted);">
+                    {{ isCasOutfitCollapsed ? 'expand_more' : 'expand_less' }}
+                  </span>
+                </div>
+                <div v-show="!isCasOutfitCollapsed" style="display: flex; flex-wrap: wrap; gap: 0.25rem;">
+                  <button
+                    v-for="outfit in casOutfitsList"
+                    :key="outfit"
+                    class="cas-category-pill"
+                    :class="{ active: activeCasOutfits.has(outfit) }"
+                    @click="toggleCasOutfit(outfit)"
+                  >
+                    {{ t('cas_outfits.' + outfit) }}
+                  </button>
+                </div>
+              </div>
             </div>
 
             <button class="btn filter-btn" :class="{ active: filterTypeBuildBuy }" @click="filterTypeBuildBuy = !filterTypeBuildBuy">
