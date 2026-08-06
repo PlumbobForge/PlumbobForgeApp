@@ -37,9 +37,14 @@ function startBackend(port: number) {
   backendProcess.stderr?.on('data', (data) => console.error(`[Backend ERR] ${data}`));
 }
 
+app.commandLine.appendSwitch('v8-cache-options', 'code');
+
 async function createWindow() {
-  backendPort = await getFreePort();
-  startBackend(backendPort);
+  const portPromise = getFreePort().then(port => {
+    backendPort = port;
+    startBackend(backendPort);
+    return port;
+  });
 
   mainWindow = new BrowserWindow({
     width: 1295,
@@ -55,6 +60,8 @@ async function createWindow() {
       contextIsolation: true
     }
   });
+
+  await portPromise;
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('http://') || url.startsWith('https://')) {
