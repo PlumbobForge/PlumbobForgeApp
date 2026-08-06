@@ -107,6 +107,7 @@ async function createWindow() {
   });
   ipcMain.on('window-close', () => mainWindow?.close());
   ipcMain.handle('get-app-version', () => app.getVersion());
+  ipcMain.handle('get-system-locale', () => app.getLocale());
   
   ipcMain.handle('select-directory', async () => {
     if (!mainWindow) return null;
