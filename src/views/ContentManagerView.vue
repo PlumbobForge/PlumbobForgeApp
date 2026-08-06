@@ -3,10 +3,27 @@
     <div class="content-manager-layout">
 
       <!-- Sidebar: Sets Tree -->
-      <div class="cm-sidebar" @contextmenu.prevent="onSidebarContextMenu">
-        <div class="cm-sidebar-header">
-          Sets
-          <button id="btn-create-set" class="btn btn-sm" @click.stop="createSet">+ New</button>
+      <div class="cm-sidebar" id="cm-sidebar" @contextmenu.prevent="onSidebarContextMenu" @dragover.prevent @drop.prevent="onDropSidebar">
+        <div class="cm-sidebar-header" style="position: relative; display: flex; align-items: center; justify-content: space-between;">
+          <span>{{ t('cm.sets') }}</span>
+          <div style="display: flex; align-items: center; gap: 0.25rem;">
+            <button class="btn sort-trigger" style="padding: 4px 8px; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;" :data-tooltip="t('cm.sort_sets')" @click.stop="toggleSetSortDropdown">
+              <span class="material-symbols-outlined" style="font-size: 16px;">sort</span>
+            </button>
+            <button id="btn-create-set" class="btn btn-sm" @click.stop="createSet">+</button>
+          </div>
+          <div v-if="setSortDropdownOpen" class="context-menu dropdown-menu-left" style="top: 15%; left: 0; min-width: 150px; z-index: 100;">
+            <div class="context-menu-item" :class="{ active: setSortBy === 'date' }" @click="setSortBy = 'date'; setSortDropdownOpen = false">
+              {{ t('cm.sort_date') }}
+            </div>
+            <div class="context-menu-divider"></div>
+            <div class="context-menu-item" :class="{ active: setSortBy === 'name_asc' }" @click="setSortBy = 'name_asc'; setSortDropdownOpen = false">
+              {{ t('cm.sort_name_asc') }}
+            </div>
+            <div class="context-menu-item" :class="{ active: setSortBy === 'name_desc' }" @click="setSortBy = 'name_desc'; setSortDropdownOpen = false">
+              {{ t('cm.sort_name_desc') }}
+            </div>
+          </div>
         </div>
         <div class="cm-tree-view" id="cm-tree-view" v-if="loadingSets">
           <div class="text-muted-padded">Loading Sets...</div>
