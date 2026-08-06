@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   selectDirectory: () => ipcRenderer.invoke('select-directory'),
   getBackendPort: () => ipcRenderer.invoke('get-backend-port'),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  getSystemLocale: () => ipcRenderer.invoke('get-system-locale'),
   checkForUpdates: () => ipcRenderer.send('check-for-updates'),
   downloadUpdate: () => ipcRenderer.send('download-update'),
   installUpdate: () => ipcRenderer.send('install-update'),
