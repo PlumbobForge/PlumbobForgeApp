@@ -193,7 +193,7 @@
     "import_downloads_btn": "Import from Downloads",
     "observed_folders_title": "Observed Folders (Auto-Import & Monitoring)",
     "observed_folders_desc": "Configure custom folders to be automatically monitored for CC packages and checked when importing.",
-    "add_observed_folder": "+ Add Folder",
+    "add_observed_folder": "Folder",
     "default_observed_folder_hint": "Defaulting to standard Sims 3 Downloads folder.",
     "configure_folders": "Configure Folders",
     "doc_dir": "PlumbobForge Directory Path",

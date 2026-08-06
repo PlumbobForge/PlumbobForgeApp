@@ -27,7 +27,7 @@
         <div style="border-top: 1px solid var(--border-color, rgba(255,255,255,0.1)); padding-top: 1rem;">
           <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; font-weight: 700;">Major Improvements</h3>
           <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted, #94a3b8);">
-            Thanks to your feedback, we’ve made sweeping improvements across the entire app. Here are the highlights:
+            Thanks to your feedback, improvements across the entire app have been made. Here are the highlights:
           </p>
         </div>
 

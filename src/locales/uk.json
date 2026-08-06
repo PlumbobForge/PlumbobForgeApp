@@ -192,7 +192,7 @@
     "import_downloads_btn": "Імпортувати з Downloads",
     "observed_folders_title": "Моніторинг папок (Автоімпорт)",
     "observed_folders_desc": "Налаштуйте власні папки для автоматичного моніторингу файлів CC та їх перевірки при імпорті.",
-    "add_observed_folder": "+ Додати папку",
+    "add_observed_folder": "Папка",
     "default_observed_folder_hint": "За замовчуванням використовується стандартна папка Завантажень The Sims 3.",
     "configure_folders": "Налаштування папок",
     "doc_dir": "Шлях до папки PlumbobForge",
