@@ -167,7 +167,36 @@
         <div class="filter-group">
           <div class="search-container">
             <span class="material-symbols-outlined search-icon">search</span>
-            <input type="text" v-model="searchQuery" class="search-input" placeholder="Search items..." />
+            <input
+              type="text"
+              v-model="searchQuery"
+              class="search-input"
+              :placeholder="t('cm.search_placeholder')"
+              @focus="isSearchFocused = true"
+              @blur="onSearchBlur"
+              @keydown.enter="addSearchHistory(searchQuery)"
+            />
+            <span v-if="searchQuery" class="material-symbols-outlined search-clear-icon" @click="searchQuery = ''">close</span>
+
+            <!-- Autocomplete & Search History Dropdown -->
+            <div v-if="isSearchFocused && (filteredTagSuggestions.length > 0 || searchHistory.length > 0)" class="search-autocomplete-dropdown">
+              <template v-if="filteredTagSuggestions.length > 0">
+                <div class="search-autocomplete-section">{{ t('cm.user_tags') }}</div>
+                <div v-for="tag in filteredTagSuggestions" :key="'tag-' + tag" class="search-autocomplete-item" @mousedown.prevent="selectSearchSuggestion(tag)">
+                  <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">label</span>
+                  <span>{{ tag }}</span>
+                </div>
+              </template>
+
+              <template v-if="searchHistory.length > 0 && !searchQuery">
+                <div class="search-autocomplete-section" style="margin-top: 0.25rem;">{{ t('cm.recent_searches') }}</div>
+                <div v-for="item in searchHistory" :key="'hist-' + item" class="search-autocomplete-item" @mousedown.prevent="selectSearchSuggestion(item)">
+                  <span class="material-symbols-outlined" style="font-size: 16px; color: var(--text-muted);">history</span>
+                  <span style="flex: 1;">{{ item }}</span>
+                  <span class="material-symbols-outlined" style="font-size: 14px; color: var(--text-muted);" @click.stop="removeSearchHistory(item)">close</span>
+                </div>
+              </template>
+            </div>
           </div>
         </div>
 
