@@ -3,13 +3,13 @@
     <div class="modal-overlay" v-if="selectSetState.visible" style="display: flex;">
       <div class="modal modal-centered">
         <span class="material-symbols-outlined modal-icon primary">drive_file_move</span>
-        <h2 class="modal-title">Move to Set</h2>
+        <h2 class="modal-title">{{ t('modal.select_target_set') }}</h2>
         <select v-model="selectedSetId" class="form-control" style="margin-bottom: 1.5rem; width: 100%;">
           <option v-for="opt in flattenedSets" :key="opt.id" :value="opt.id" v-html="opt.label"></option>
         </select>
         <div class="modal-actions-spaced">
-          <button class="btn btn-secondary" @click="cancel">Cancel</button>
-          <button class="btn" @click="confirm">Move</button>
+          <button class="btn btn-secondary" @click="cancel">{{ t('modal.cancel') }}</button>
+          <button class="btn" @click="confirm">{{ t('modal.move') }}</button>
         </div>
       </div>
     </div>
@@ -19,8 +19,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { useModal } from '@/composables/useModal';
+import { useI18n } from '@/composables/useI18n';
 
 const { selectSetState } = useModal();
+const { t } = useI18n();
 const selectedSetId = ref<number | null>(null);
 
 // Reset selected set when modal opens

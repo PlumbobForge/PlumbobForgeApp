@@ -7,8 +7,8 @@
         <p v-if="promptState.message" style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.9rem;">{{ promptState.message }}</p>
         <input type="text" v-model="inputValue" class="form-control modal-input-centered" @keydown.enter="submit" ref="inputEl" />
         <div class="modal-actions-spaced">
-          <button class="btn btn-secondary" @click="cancel">Cancel</button>
-          <button class="btn" @click="submit">Submit</button>
+          <button class="btn btn-secondary" @click="cancel">{{ t('modal.cancel') }}</button>
+          <button class="btn" @click="submit">{{ t('modal.save') }}</button>
         </div>
       </div>
     </div>
@@ -18,8 +18,10 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue';
 import { useModal } from '@/composables/useModal';
+import { useI18n } from '@/composables/useI18n';
 
 const { promptState } = useModal();
+const { t } = useI18n();
 const inputValue = ref('');
 const inputEl = ref<HTMLInputElement | null>(null);
 

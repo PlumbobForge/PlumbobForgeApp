@@ -20,19 +20,17 @@
 
         <div class="compact-meta">
           <span class="compact-size">{{ (item.fileSize / 1024).toFixed(2) }} MB</span>
-          <template v-if="item.packageType === 'CAS' && item.casCategories && item.casCategories !== 'Other'">
-            <span v-for="cat in item.casCategories.split(',').filter(c => c && c !== 'Other')" :key="cat" class="badge badge-cas">
-              {{ cat }}
-            </span>
-          </template>
-          <span v-if="!item.enabled" class="badge badge-disabled">Disabled</span>
+          <span v-for="(badge, bIdx) in itemBadges" :key="bIdx" class="badge" :class="`badge-type-${badge.type}`">
+            {{ badge.label }}
+          </span>
+          <span v-if="!item.enabled" class="badge badge-disabled">{{ t('cm.disabled') }}</span>
         </div>
 
         <div class="compact-actions compact-actions-flex">
-          <button class="btn icon-btn custom-tooltip-container compact-action-btn" data-tooltip="Search on Google" @click.stop="searchGoogle">
+          <button class="btn icon-btn custom-tooltip-container compact-action-btn" :data-tooltip="t('context.search_google')" @click.stop="searchGoogle">
             <span class="material-symbols-outlined icon-18">search</span>
           </button>
-          <button class="btn icon-btn custom-tooltip-container compact-action-btn" data-tooltip="Rename" @click.stop="renameItem">
+          <button class="btn icon-btn custom-tooltip-container compact-action-btn" :data-tooltip="t('context.rename')" @click.stop="renameItem">
             <span class="material-symbols-outlined icon-18">edit</span>
           </button>
         </div>
@@ -48,6 +46,16 @@
         <span class="material-symbols-outlined comfy-fallback-icon">image</span>
       </div>
 
+      <!-- Top Left User Tags Container -->
+      <div class="comfy-top-left-tags">
+        <span v-for="tag in parsedUserTags" :key="tag" class="comfy-tag-badge">
+          {{ tag }}
+        </span>
+        <button class="comfy-tag-add-btn" :title="t('context.user_tags')" @click.stop="$emit('edit-tags', item)">
+          <span class="material-symbols-outlined" style="font-size: 14px;">add</span>
+        </button>
+      </div>
+
       <div class="item-overlay"></div>
 
       <div class="item-content-wrapper">
@@ -59,12 +67,10 @@
           <div class="item-meta comfy-meta-flex">
             <div class="comfy-meta-left">
               <span>{{ (item.fileSize / 1024).toFixed(2) }} MB</span>
-              <template v-if="item.packageType === 'CAS' && item.casCategories && item.casCategories !== 'Other'">
-                <span v-for="cat in item.casCategories.split(',').filter(c => c && c !== 'Other')" :key="cat" class="badge badge-cas-comfy">
-                  {{ cat }}
-                </span>
-              </template>
-              <span v-if="!item.enabled" class="badge badge-disabled-comfy">Disabled</span>
+              <span v-for="(badge, bIdx) in itemBadges" :key="bIdx" class="badge" :class="`badge-type-${badge.type}-comfy`">
+                {{ badge.label }}
+              </span>
+              <span v-if="!item.enabled" class="badge badge-disabled-comfy">{{ t('cm.disabled') }}</span>
             </div>
             <button class="btn icon-btn comfy-info-btn" @click.stop="showInfo = !showInfo">
               <span class="material-symbols-outlined icon-20">info</span>
@@ -74,14 +80,17 @@
           <!-- Extra Info Panel -->
           <div class="item-extra-info" :class="{ 'info-open': showInfo }">
             <div class="comfy-install-date">
-              Added: {{ item.installDate || 'Unknown' }}
+              {{ t('cm.added', { date: item.installDate || 'Unknown' }) }}
             </div>
             <div class="comfy-actions-flex">
-              <button class="btn icon-btn custom-tooltip-container comfy-action-btn" data-tooltip="Search on Google" @click.stop="searchGoogle">
+              <button class="btn icon-btn custom-tooltip-container comfy-action-btn" :data-tooltip="t('context.search_google')" @click.stop="searchGoogle">
                 <span class="material-symbols-outlined icon-18">search</span>
               </button>
-              <button class="btn icon-btn custom-tooltip-container comfy-action-btn" data-tooltip="Rename" @click.stop="renameItem">
+              <button class="btn icon-btn custom-tooltip-container comfy-action-btn" :data-tooltip="t('context.rename')" @click.stop="renameItem">
                 <span class="material-symbols-outlined icon-18">edit</span>
+              </button>
+              <button class="btn icon-btn custom-tooltip-container comfy-action-btn" :data-tooltip="t('context.retag')" @click.stop="retagItem">
+                <span class="material-symbols-outlined icon-18">sell</span>
               </button>
             </div>
           </div>
@@ -95,7 +104,9 @@
 import { computed, ref } from 'vue';
 import type { ItemEntity } from '@/types';
 import { API_BASE } from '@/api/client';
+import { useI18n } from '@/composables/useI18n';
 
+const { t } = useI18n();
 const imageError = ref(false);
 const showInfo = ref(false);
 
@@ -113,9 +124,63 @@ const emit = defineEmits<{
   (e: 'dragstart', event: DragEvent): void;
   (e: 'dragend', event: DragEvent): void;
   (e: 'rename', itemId: number): void;
+  (e: 'retag', item: ItemEntity): void;
+  (e: 'edit-tags', item: ItemEntity): void;
 }>();
 
 const isPkg = computed(() => props.item.completeFileName.toLowerCase().endsWith('.package'));
+
+const parsedUserTags = computed(() => {
+  if (!props.item.userTags) return [];
+  return props.item.userTags.split(',').map(s => s.trim()).filter(Boolean);
+});
+
+interface ItemBadge {
+  label: string;
+  type: string;
+}
+
+const itemBadges = computed<ItemBadge[]>(() => {
+  const pt = props.item.packageType || '';
+  const fn = (props.item.fileName || '').toLowerCase();
+
+  // 1. CAS Items
+  if (pt === 'CAS') {
+    if (props.item.casCategories && props.item.casCategories !== 'Other') {
+      const cats = props.item.casCategories.split(',').map(c => c.trim()).filter(c => c && c !== 'Other');
+      if (cats.length > 0) {
+        return cats.map(c => ({
+          label: t('cas_categories.' + c) || c,
+          type: 'cas'
+        }));
+      }
+    }
+    return [{ label: 'CAS', type: 'cas' }];
+  }
+
+  // 2. BuildBuy Items
+  if (pt === 'BuildBuy' || pt === 'Build/Buy' || pt === 'Object') {
+    return [{ label: t('cm.buildbuy') || 'Build/Buy', type: 'buildbuy' }];
+  }
+
+  // 3. Worlds
+  if (pt === 'World' || fn.endsWith('.world')) {
+    return [{ label: t('other_subcategories.Worlds') || 'Worlds', type: 'world' }];
+  }
+
+  // 4. Sims
+  if (pt === 'Sim' || fn.endsWith('.sim')) {
+    return [{ label: t('other_subcategories.Sims') || 'Sims', type: 'sim' }];
+  }
+
+  // 5. Lots
+  if (pt === 'Lot') {
+    return [{ label: t('other_subcategories.Lots') || 'Lots', type: 'lot' }];
+  }
+
+  // 6. Other / Misc -> No badge
+  return [];
+});
 
 function onClick(e: MouseEvent) {
   emit('select', e, props.item.id);
@@ -136,6 +201,10 @@ function searchGoogle() {
 
 function renameItem() {
   emit('rename', props.item.id);
+}
+
+function retagItem() {
+  emit('retag', props.item);
 }
 </script>
 
@@ -191,6 +260,11 @@ function renameItem() {
   pointer-events: none;
 }
 
+:root[data-theme="light"] .item-overlay,
+[data-theme="light"] .item-overlay {
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.75) 65%, transparent 100%);
+}
+
 .item-content-wrapper {
   position: absolute;
   top: 0;
@@ -220,10 +294,22 @@ function renameItem() {
   text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
+:root[data-theme="light"] .item-title,
+[data-theme="light"] .item-title {
+  color: #0f172a;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
 .item-meta {
   font-size: 0.8rem;
   color: #cbd5e1;
   text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+:root[data-theme="light"] .item-meta,
+[data-theme="light"] .item-meta {
+  color: #475569;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
 }
 
 .item-extra-info {
@@ -320,5 +406,55 @@ function renameItem() {
 .item-card.compact.disabled .compact-title {
   text-decoration: line-through;
   color: var(--text-muted);
+}
+
+.comfy-top-left-tags {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100% - 36px);
+}
+
+.comfy-tag-badge {
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+}
+
+.comfy-tag-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+
+.item-card:hover .comfy-tag-add-btn {
+  opacity: 1;
+}
+
+.comfy-tag-add-btn:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  transform: scale(1.1);
 }
 </style>

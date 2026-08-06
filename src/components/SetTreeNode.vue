@@ -1,7 +1,9 @@
 <template>
-  <div class="tree-item" :class="{ active: isActive, 'drag-over': isDragOver }"
+  <div class="tree-item selectable-card" :class="{ active: isActive, selected: isSelected, 'drag-over': isDragOver, 'is-builtin': isBuiltIn }"
+       :data-id="set.id"
+       :data-builtin="isBuiltIn ? 'true' : 'false'"
        :style="{ paddingLeft: `${0.5 + (depth * 1.5)}rem` }"
-       draggable="true"
+       :draggable="!isBuiltIn && isSelected"
        @click.stop="selectNode"
        @contextmenu.prevent.stop="handleContextMenu"
        @dragstart.stop="onDragStart"
@@ -10,7 +12,7 @@
        @dragleave.stop="onDragLeave"
        @drop.prevent.stop="onDrop">
 
-    <span class="tree-label">
+    <span class="tree-label" :draggable="!isBuiltIn" @dragstart.stop="onDragStart" @dragend.stop="onDragEnd">
       <span class="tree-icon material-symbols-outlined">sell</span>
       {{ set.name }}
     </span>
@@ -49,10 +51,12 @@ const emit = defineEmits<{
 const store = useAppStore();
 const isDragOver = ref(false);
 
+const isBuiltIn = computed(() => props.set.name === 'Default' || props.set.name === 'Legacy');
 const children = computed(() => props.allSets.filter(s => s.parentSetsEntityId === props.set.id));
 const hasChildren = computed(() => children.value.length > 0);
 const isExpanded = computed(() => store.expandedSets.has(props.set.id));
 const isActive = computed(() => store.selectedSetId === props.set.id);
+const isSelected = computed(() => !isBuiltIn.value && store.selectedSetIds.has(props.set.id));
 
 function toggleExpand() {
   if (isExpanded.value) {
@@ -62,7 +66,28 @@ function toggleExpand() {
   }
 }
 
-function selectNode() {
+function selectNode(e: MouseEvent) {
+  if (!isBuiltIn.value) {
+    if (e.ctrlKey || e.metaKey) {
+      if (store.selectedSetIds.has(props.set.id)) {
+        store.selectedSetIds.delete(props.set.id);
+      } else {
+        store.selectedSetIds.add(props.set.id);
+      }
+    } else if (e.shiftKey) {
+      store.selectedSetIds.add(props.set.id);
+    } else {
+      if (!store.selectedSetIds.has(props.set.id) || store.selectedSetIds.size <= 1) {
+        store.selectedSetIds.clear();
+        store.selectedSetIds.add(props.set.id);
+      }
+    }
+  } else {
+    // Built-in sets like Default cannot be multi-selected
+    if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+      store.selectedSetIds.clear();
+    }
+  }
   store.selectedSetId = props.set.id;
   emit('select', props.set.id);
 }
@@ -72,8 +97,20 @@ function handleContextMenu(e: MouseEvent) {
 }
 
 function onDragStart(e: DragEvent) {
+  if (isBuiltIn.value) {
+    e.preventDefault();
+    return;
+  }
+
   if (e.dataTransfer) {
-    e.dataTransfer.setData('application/json', JSON.stringify({ type: 'set', id: props.set.id }));
+    let idsToDrag = Array.from(store.selectedSetIds).filter(id => {
+      const s = props.allSets.find(x => x.id === id);
+      return s && s.name !== 'Default' && s.name !== 'Legacy';
+    });
+    if (!idsToDrag.includes(props.set.id)) {
+      idsToDrag.push(props.set.id);
+    }
+    e.dataTransfer.setData('application/json', JSON.stringify({ type: 'sets', id: props.set.id, ids: idsToDrag }));
     (e.target as HTMLElement).style.opacity = '0.5';
   }
 }

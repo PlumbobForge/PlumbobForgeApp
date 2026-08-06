@@ -140,11 +140,27 @@ export async function createConfiguration(): Promise<Configuration> {
   return res.json();
 }
 
+export async function duplicateConfiguration(id: number): Promise<Configuration> {
+  const res = await fetch(`${API_BASE}/configurations/${id}/duplicate`, {
+    method: 'POST'
+  });
+  if (!res.ok) throw new Error('Failed to duplicate configuration');
+  return res.json();
+}
+
 export async function renameConfiguration(id: number, name: string): Promise<any> {
   const res = await fetch(`${API_BASE}/configurations/${id}?name=${encodeURIComponent(name)}`, {
     method: 'PUT'
   });
   if (!res.ok) throw new Error('Failed to rename configuration');
+  return res.json();
+}
+
+export async function updateConfigurationDescription(id: number, description: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/configurations/${id}?description=${encodeURIComponent(description)}`, {
+    method: 'PUT'
+  });
+  if (!res.ok) throw new Error('Failed to update configuration description');
   return res.json();
 }
 
@@ -218,18 +234,69 @@ export async function startScan(): Promise<Response> {
   return res;
 }
 
-export async function startRecheckTypes(): Promise<Response> {
-  const res = await fetch(`${API_BASE}/settings/recheck-types`, {
+export async function startRecheckTypes(skipUserTagged: boolean = true): Promise<Response> {
+  const res = await fetch(`${API_BASE}/settings/recheck-types?skipUserTagged=${skipUserTagged}`, {
     method: 'POST'
   });
   if (!res.ok) throw new Error('Failed to start rechecking types');
   return res;
 }
 
-export async function uploadFiles(files: File[]): Promise<Response> {
+export async function retagItems(itemIds: number[], packageType: string, casCategories: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/items/retag`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ itemIds, packageType, casCategories })
+  });
+  if (!res.ok) throw new Error('Failed to retag items');
+}
+
+export async function updateUserTags(
+  itemIds: number[],
+  options: { setTags?: string[]; addTags?: string[]; removeAll?: boolean }
+): Promise<void> {
+  const res = await fetch(`${API_BASE}/items/user-tags`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      itemIds,
+      setTags: options.setTags || null,
+      addTags: options.addTags || null,
+      removeAll: options.removeAll || false
+    })
+  });
+  if (!res.ok) throw new Error('Failed to update user tags');
+}
+
+export async function checkImportDuplicates(filesOrNames: (File | string)[]): Promise<{ hasDuplicates: boolean, duplicates: string[] }> {
+  if (filesOrNames.length > 0 && typeof filesOrNames[0] !== 'string') {
+    const formData = new FormData();
+    (filesOrNames as File[]).forEach(f => formData.append('files', f));
+    const res = await fetch(`${API_BASE}/import/check-duplicates`, {
+      method: 'POST',
+      body: formData
+    });
+    if (!res.ok) throw new Error('Failed to check for duplicate files');
+    return res.json();
+  } else {
+    const fileNames = filesOrNames as string[];
+    const res = await fetch(`${API_BASE}/import/check-duplicates`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileNames })
+    });
+    if (!res.ok) throw new Error('Failed to check for duplicate files');
+    return res.json();
+  }
+}
+
+export async function uploadFiles(files: File[], duplicateAction: string = 'rename', targetSetId?: number): Promise<Response> {
   const formData = new FormData();
   files.forEach(f => formData.append('files', f));
-  
+  formData.append('duplicateAction', duplicateAction);
+  if (targetSetId) {
+    formData.append('targetSetId', targetSetId.toString());
+  }
   const res = await fetch(`${API_BASE}/upload-files`, {
     method: 'POST',
     body: formData
@@ -238,18 +305,24 @@ export async function uploadFiles(files: File[]): Promise<Response> {
   return res;
 }
 
-export async function importFiles(filePaths: string[]): Promise<Response> {
+export async function importFiles(filePaths: string[], duplicateAction: string = 'rename', targetSetId?: number): Promise<Response> {
   const res = await fetch(`${API_BASE}/import-files`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(filePaths)
+    body: JSON.stringify({ filePaths, duplicateAction, targetSetId })
   });
   if (!res.ok) throw new Error('Failed to start importing files');
   return res;
 }
 
-export async function importDownloads(): Promise<Response> {
-  const res = await fetch(`${API_BASE}/import-downloads`, {
+export async function checkDownloadsDuplicates(): Promise<{ hasDuplicates: boolean, duplicates: string[] }> {
+  const res = await fetch(`${API_BASE}/import-downloads/check-duplicates`);
+  if (!res.ok) throw new Error('Failed to check downloads duplicates');
+  return res.json();
+}
+
+export async function importDownloads(duplicateAction: string = 'rename'): Promise<Response> {
+  const res = await fetch(`${API_BASE}/import-downloads?duplicateAction=${encodeURIComponent(duplicateAction)}`, {
     method: 'POST'
   });
   if (!res.ok) throw new Error('Failed to start importing downloads');

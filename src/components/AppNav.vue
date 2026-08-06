@@ -6,15 +6,15 @@
     <nav class="nav">
       <router-link to="/" class="nav-item" draggable="false" exact-active-class="active">
         <span class="material-symbols-outlined" style="font-size: 20px;">folder</span>
-        Content Manager
+        {{ t('nav.content_manager') }}
       </router-link>
       <router-link to="/configurations" class="nav-item" draggable="false" active-class="active">
         <span class="material-symbols-outlined" style="font-size: 20px;">tune</span>
-        Configurations
+        {{ t('nav.configurations') }}
       </router-link>
       <router-link to="/settings" class="nav-item" draggable="false" active-class="active">
         <span class="material-symbols-outlined" style="font-size: 20px;">settings</span>
-        Settings
+        {{ t('nav.settings') }}
       </router-link>
     </nav>
     <div class="d-flex flex-center gap-4 ml-auto" style="-webkit-app-region: no-drag;">
@@ -62,7 +62,18 @@ const maximizeWindow = () => {
   if ((window as any).electronAPI) (window as any).electronAPI.maximize();
 }
 
-const closeWindow = () => {
+const closeWindow = async () => {
+  if (store.isDirty) {
+    const confirmed = await showConfirm(
+      t('modal.close_warning_title'),
+      t('modal.close_warning_msg'),
+      {
+        confirmText: t('modal.close_anyway'),
+        danger: true
+      }
+    );
+    if (!confirmed) return;
+  }
   if ((window as any).electronAPI) (window as any).electronAPI.close();
 }
 </script>

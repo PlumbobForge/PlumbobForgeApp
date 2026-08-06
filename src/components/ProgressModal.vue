@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div class="modal-overlay" v-if="progressState.visible" style="display: flex;">
       <div class="modal" style="width: 600px;">
-        <h2>{{ progressState.title || 'Processing...' }}</h2>
+        <h2>{{ progressState.title || t('modal.progress_title') }}</h2>
         <div class="console-output" style="height: 300px; overflow-y: auto; background: #1a1a1a; color: #fff; padding: 1rem; border-radius: 6px; font-family: monospace; font-size: 0.85rem; margin-bottom: 1rem;" ref="logEl">
           <div v-for="(line, idx) in progressState.log" :key="idx">{{ line }}</div>
         </div>
@@ -11,7 +11,7 @@
           <div :style="{ color: statusColor }">{{ progressState.status }}</div>
         </div>
         <div class="modal-actions" style="justify-content: center;">
-          <button class="btn" :disabled="progressState.running" @click="close">Close</button>
+          <button class="btn" :disabled="progressState.running" @click="close">{{ t('modal.close') }}</button>
         </div>
       </div>
     </div>
@@ -21,8 +21,10 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, computed } from 'vue';
 import { useModal } from '@/composables/useModal';
+import { useI18n } from '@/composables/useI18n';
 
 const { progressState } = useModal();
+const { t } = useI18n();
 const logEl = ref<HTMLElement | null>(null);
 
 watch(() => progressState.log.length, async () => {
