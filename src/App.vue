@@ -138,7 +138,7 @@ onMounted(async () => {
 
   if ((window as any).electronAPI) {
     store.appVersion = await (window as any).electronAPI.getAppVersion()
-    
+
     ;(window as any).electronAPI.onUpdateEvent('update-available', (info: any) => {
       store.updateStatus = 'available'
       store.updateInfo = info
@@ -197,7 +197,7 @@ onMounted(async () => {
       store.isDirty = sets.some(s => s.dirty)
     }
 
-    const currentVersion = store.appVersion || '0.2.0'
+    const currentVersion = store.appVersion || '0.2.1'
     const lastSeenVer = localStorage.getItem('plumbobforge_last_seen_version')
 
     if (!hasSeenWalkthrough) {
