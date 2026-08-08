@@ -535,10 +535,6 @@ const activateConfig = async () => {
 
     await activateConfiguration(targetId)
 
-    if (store.cacheMethod === 'Static') {
-      store.isDirty = true
-    }
-
     showToast(`${currentConfig.value.name} is now the active configuration. Game files updated!`, 'success')
 
     const [configsRes, setsRes] = await Promise.all([fetchConfigurations(), fetchSets()])
@@ -546,6 +542,7 @@ const activateConfig = async () => {
     allSets.value = setsRes
     store.configs = configsRes
     store.currentConfig = configsRes.find(c => c.id === targetId) || null
+    store.isDirty = setsRes.some(s => s.dirty)
   } catch (err) {
     showToast('Failed to activate configuration', 'error')
     await loadData()
@@ -670,9 +667,9 @@ const moveMultipleSetsWithSubsets = async (targetSetIds: number[], enable: boole
     currentConfig.value.setIds = newSetIds
     await updateConfigurationSets(currentConfig.value.id, newSetIds)
 
-    if (store.cacheMethod === 'Static' || currentConfig.value.active) {
-      store.isDirty = true
-    }
+    const setsRes = await fetchSets()
+    allSets.value = setsRes
+    store.isDirty = setsRes.some(s => s.dirty)
   }
 }
 
