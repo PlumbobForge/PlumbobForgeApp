@@ -222,6 +222,8 @@
     "up_to_date": "Aplikacja jest aktualna!",
     "update_error": "Nie udało się sprawdzić aktualizacji.",
     "special_thanks": "Specjalne podziękowania",
+    "code_libraries": "Kod i biblioteki",
+    "translations": "Tłumaczenia",
     "source_code": "Kod źródłowy",
     "migrate_confirm_title": "Migracja z CC Magic",
     "migrate_confirm_msg": "Czy na pewno chcesz przenieść pliki z CC Magic? Przeniesie to wszystkie pliki do biblioteki PlumbobForge.",
