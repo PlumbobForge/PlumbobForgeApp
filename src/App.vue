@@ -89,6 +89,7 @@ const initializeDirtyState = async () => {
 
 const closeWalkthrough = async () => {
   showWalkthrough.value = false
+  localStorage.setItem('plumbobforge_has_seen_walkthrough', 'true')
   try {
     const settings = await fetchSettings()
     settings.hasSeenWalkthrough = true
@@ -167,29 +168,43 @@ onMounted(async () => {
 
   try {
     const [settings, sets] = await Promise.all([
-      fetchSettings(),
+      fetchSettings().catch(() => null),
       fetchSets().catch(() => [])
     ])
 
-    const lang = settings.language || settings.Language || 'auto'
-    const theme = settings.theme || settings.Theme || 'auto'
-    store.cacheMethod = settings.cacheMethod || settings.CacheMethod || 'Dynamic'
-    await initI18n(lang)
-    initTheme(theme)
-    
-    if (sets.length > 0) {
+    const localSeen = localStorage.getItem('plumbobforge_has_seen_walkthrough') === 'true'
+    const settingsSeen = !!(settings?.hasSeenWalkthrough || settings?.HasSeenWalkthrough)
+    const hasSeenWalkthrough = localSeen || settingsSeen
+
+    if (settings) {
+      const lang = settings.language || settings.Language || 'auto'
+      const theme = settings.theme || settings.Theme || 'auto'
+      store.cacheMethod = settings.cacheMethod || settings.CacheMethod || 'Dynamic'
+      await initI18n(lang)
+      initTheme(theme)
+
+      if (localSeen && !settingsSeen) {
+        settings.hasSeenWalkthrough = true
+        settings.HasSeenWalkthrough = true
+        saveSettingsApi(settings, false).catch(() => {})
+      }
+    } else {
+      await initI18n('en')
+      initTheme('auto')
+    }
+
+    if (sets && sets.length > 0) {
       store.isDirty = sets.some(s => s.dirty)
     }
 
     const currentVersion = store.appVersion || '0.2.0'
     const lastSeenVer = localStorage.getItem('plumbobforge_last_seen_version')
-    const hasSeenWalkthrough = !!(settings.hasSeenWalkthrough || settings.HasSeenWalkthrough)
 
     if (!hasSeenWalkthrough) {
       showWalkthrough.value = true
       localStorage.setItem('plumbobforge_last_seen_version', currentVersion)
     } else {
-      // User has already completed the walkthrough. On new updates, display What's New changelog instead.
+      showWalkthrough.value = false
       if (!lastSeenVer || isVersionGreater(currentVersion, lastSeenVer)) {
         showChangelog.value = true
         localStorage.setItem('plumbobforge_last_seen_version', currentVersion)
@@ -197,7 +212,9 @@ onMounted(async () => {
     }
   } catch (err) {
     console.error('Failed to initialize app settings:', err)
-    showWalkthrough.value = true
+    if (localStorage.getItem('plumbobforge_has_seen_walkthrough') !== 'true') {
+      showWalkthrough.value = true
+    }
   } finally {
     appReady.value = true
   }

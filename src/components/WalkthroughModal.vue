@@ -164,6 +164,7 @@ const next = async () => {
   if (step.value < 7) {
     step.value++
   } else {
+    localStorage.setItem('plumbobforge_has_seen_walkthrough', 'true')
     emit('close')
   }
 }
@@ -183,6 +184,7 @@ const forceNext = async () => {
 }
 
 const close = () => {
+  localStorage.setItem('plumbobforge_has_seen_walkthrough', 'true')
   emit('close')
 }
 
