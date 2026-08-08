@@ -139,11 +139,15 @@ const next = async () => {
 
     validating.value = true
     try {
-      const isValid = await validateGameFiles(gameFilesDir.value)
-      if (!isValid) {
+      const res = await validateGameFiles(gameFilesDir.value)
+      if (!res.valid) {
         validationError.value = t('walkthrough.game_dir_invalid_error')
         validating.value = false
         return
+      }
+
+      if (res.normalizedPath) {
+        gameFilesDir.value = res.normalizedPath
       }
 
       const settings = await fetchSettings()

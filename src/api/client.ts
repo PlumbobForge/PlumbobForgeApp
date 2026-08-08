@@ -336,7 +336,7 @@ export async function autodetectGameFiles(): Promise<string> {
   return data.path;
 }
 
-export async function validateGameFiles(path: string): Promise<boolean> {
+export async function validateGameFiles(path: string): Promise<{ valid: boolean; normalizedPath: string }> {
   const res = await fetch(`${API_BASE}/settings/validate-gamefiles`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -344,5 +344,5 @@ export async function validateGameFiles(path: string): Promise<boolean> {
   });
   if (!res.ok) throw new Error('Failed to validate game files directory');
   const data = await res.json();
-  return data.valid;
+  return { valid: !!data.valid, normalizedPath: data.normalizedPath || path };
 }

@@ -490,13 +490,15 @@ const onGameFilesDirBlur = async () => {
 
   if (settings.value.gameFilesDir.trim() !== '') {
     try {
-      const isValid = await validateGameFiles(settings.value.gameFilesDir)
-      if (!isValid) {
+      const res = await validateGameFiles(settings.value.gameFilesDir)
+      if (!res.valid) {
         const proceed = await showConfirm(t('settings.warning_title'), t('settings.invalid_game_dir_msg'));
         if (!proceed) {
           settings.value.gameFilesDir = initialGameFilesDir;
           return;
         }
+      } else if (res.normalizedPath) {
+        settings.value.gameFilesDir = res.normalizedPath;
       }
     } catch (e) {
       const proceed = await showConfirm(t('settings.warning_title'), t('settings.game_dir_error_msg'));
