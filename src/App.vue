@@ -205,10 +205,14 @@ onMounted(async () => {
       localStorage.setItem('plumbobforge_last_seen_version', currentVersion)
     } else {
       showWalkthrough.value = false
-      if (!lastSeenVer || isVersionGreater(currentVersion, lastSeenVer)) {
-        showChangelog.value = true
-        localStorage.setItem('plumbobforge_last_seen_version', currentVersion)
+      if (lastSeenVer && isVersionGreater(currentVersion, lastSeenVer)) {
+        if (isVersionGreater('0.2.0', lastSeenVer)) {
+          showChangelog.value = true
+        }
+      } else if (!lastSeenVer) {
+        // Initial setup with walkthrough completed
       }
+      localStorage.setItem('plumbobforge_last_seen_version', currentVersion)
     }
   } catch (err) {
     console.error('Failed to initialize app settings:', err)

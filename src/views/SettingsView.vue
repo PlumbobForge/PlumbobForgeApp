@@ -95,6 +95,7 @@
                   <div class="context-menu-item" :style="{ color: settings.language === 'en' ? 'var(--primary)' : 'var(--text-main)' }" @click.stop="selectLanguage('en')">English</div>
                   <div class="context-menu-item" :style="{ color: settings.language === 'pl' ? 'var(--primary)' : 'var(--text-main)' }" @click.stop="selectLanguage('pl')">Polski</div>
                   <div class="context-menu-item" :style="{ color: settings.language === 'uk' ? 'var(--primary)' : 'var(--text-main)' }" @click.stop="selectLanguage('uk')">Українська</div>
+                  <div class="context-menu-item" :style="{ color: settings.language === 'el' ? 'var(--primary)' : 'var(--text-main)' }" @click.stop="selectLanguage('el')">Ελληνικά</div>
                 </div>
               </div>
             </div>
@@ -389,6 +390,7 @@ const getLanguageLabel = (lang: string) => {
     case 'en': return 'English'
     case 'pl': return 'Polski'
     case 'uk': return 'Українська'
+    case 'el': return 'Ελληνικά'
     default: return t('settings.language_auto')
   }
 }

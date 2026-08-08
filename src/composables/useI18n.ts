@@ -2,9 +2,10 @@ import { ref, computed } from 'vue'
 import en from '@/locales/en.json'
 import pl from '@/locales/pl.json'
 import uk from '@/locales/uk.json'
+import el from '@/locales/el.json'
 
-const dictionaries: Record<string, any> = { en, pl, uk }
-const supportedLanguages = ['en', 'pl', 'uk']
+const dictionaries: Record<string, any> = { en, pl, uk, el }
+const supportedLanguages = ['en', 'pl', 'uk', 'el']
 
 const currentLanguage = ref<string>('auto')
 const detectedSystemLanguage = ref<string>('en')
